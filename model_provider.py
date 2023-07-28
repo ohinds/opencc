@@ -8,7 +8,7 @@ from tensorflow.keras import applications
 class ModelProvider(InteruptableLockingThread):
     available_models = ['cvd-finetnued', 'cvd-resnet152-finetuned'] + [
         x for x in dir(applications) if x[0].isupper()]
-    default_model = 'ResNet152'
+    default_model = 'cvd-resnet152-finetuned'
 
     def __init__(self, model_name=None):
         try:
@@ -16,7 +16,7 @@ class ModelProvider(InteruptableLockingThread):
                                  model_name or self.default_model)()
         except:
             model_path = os.path.join(
-                os.getenv('HOME'), '.keras', 'models', model_name + '.h5')
+                os.getenv('HOME'), '.keras', 'models', (model_name or self.default_model) + '.h5')
             self.model = tf.keras.models.load_model(model_path)
         self.image_shape = self.model.input_shape[1:3]
         self.frames = []
@@ -54,3 +54,5 @@ class ModelProvider(InteruptableLockingThread):
                     print("{}. {}: {:.2f}%".format(i + 1, label, prob * 100))
         except:
             pass
+
+        return y
